@@ -8,7 +8,8 @@ var app = require('../app');
 var debug = require('debug')('wj9studios-express:server');
 var http = require('http');
 var https = require("https");
-var fs=require("fs")
+var fs=require("fs");
+require('dotenv').config();
 
 /**
  * Get port from environment and store in Express.
@@ -92,24 +93,25 @@ function onListening() {
 }
 
 // HTTPS
+if(process.env.NODE_ENV!=='production'){
+  var HTTPSserver=https.createServer({
+    key: fs.readFileSync("keys/key.pem"),
+    cert: fs.readFileSync("keys/cert.pem")
+  },app);
 
-var HTTPSserver=https.createServer({
-  key: fs.readFileSync("keys/key.pem"),
-  cert: fs.readFileSync("keys/cert.pem")
-},app);
+  HTTPSserver.listen(443);
+  HTTPSserver.on('error', onError);
+  HTTPSserver.on('listening', onHttpsListening);
 
-HTTPSserver.listen(443);
-HTTPSserver.on('error', onError);
-HTTPSserver.on('listening', onHttpsListening);
+  /**
+   * Event listener for HTTPS server "listening" event.
+   */
 
-/**
- * Event listener for HTTPS server "listening" event.
- */
-
-function onHttpsListening() {
-  var addr = HTTPSserver.address();
-  var bind = typeof addr === 'string'
-    ? 'pipe ' + addr
-    : 'port ' + addr.port;
-  debug('Listening on ' + bind);
+  function onHttpsListening() {
+    var addr = HTTPSserver.address();
+    var bind = typeof addr === 'string'
+      ? 'pipe ' + addr
+      : 'port ' + addr.port;
+    debug('Listening on ' + bind);
+  }
 }

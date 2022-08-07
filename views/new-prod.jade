@@ -1,0 +1,9 @@
+extends layout 
+
+block content 
+    h3 New Product 
+    form(action="/new-prod", method="post", class="form", enctype="multipart/form-data")
+        .form-group 
+            textarea#name.form-control(name="name", cols="30", rows="1", required, class="form-control", title="", placeholder="Name")
+            input#file.form-control-file(type="file", name="file", title="", required)
+        input(type="submit", value="Submit")
